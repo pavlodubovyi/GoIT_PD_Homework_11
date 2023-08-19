@@ -111,7 +111,8 @@ if __name__ == '__main__':
         for contact in record_piece:
             print(f"Name: {contact.name.value}")
             if contact.birthday:
-                print(f"Birthday: {contact.birthday.value}")
+                birthday_formatted = contact.birthday.value.strftime('%d-%m-%Y')
+                print(f"Birthday: {birthday_formatted}")
             if contact.phones:
                 print(f"Phones: {', '.join(phone.value for phone in contact.phones)}")
             print('-' * 20)
