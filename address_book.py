@@ -107,7 +107,15 @@ if __name__ == '__main__':
 
     print(ab['Bill'].days_to_birthday())
     
-   
+    for record_piece in ab.iterator(piece_size=1):
+        for contact in record_piece:
+            print(f"Name: {contact.name.value}")
+            if contact.birthday:
+                print(f"Birthday: {contact.birthday.value}")
+            if contact.phones:
+                print(f"Phones: {', '.join(phone.value for phone in contact.phones)}")
+            print('-' * 20)
+
     print('All Ok)')
 
 """
