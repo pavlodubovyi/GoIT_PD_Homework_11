@@ -16,10 +16,10 @@ class Phone(Field):
     def value(self, new_value):
         try:
             if not isinstance(new_value, str) or not new_value.isdigit() or len(new_value) != 10:
-                raise ValueError("Phone number must have 10 digits")
+                raise ValueError
             self.something = new_value
         except ValueError:
-            print(f"The phone number you entered is invalid")
+            print(f"The phone number {new_value} is invalid. Phone number must have 10 digits")
             self.something = None
 
 
@@ -98,6 +98,8 @@ class AddressBook(UserDict):
     
 
 if __name__ == '__main__':
+
+    # далі починаються мої перевірочні тести
     name_1 = Name('Bill')
     phone_1 = Phone('1234567890')
     phone_2 = Phone('098')
@@ -110,7 +112,6 @@ if __name__ == '__main__':
     birthday_2 = Birthday("23-11-1984")
     rec_2 = Record(name_2, birthday=birthday_2)
     ab.add_record(rec_2)
-
 
     name_3 = Name('Witney')
     birthday_3 = Birthday("21-01-1985")
@@ -144,18 +145,3 @@ if __name__ == '__main__':
                 print(f"Phones: {', '.join(valid_phones)}")
             print('-' * 20)
 
-"""
-The phone number you entered is invalid
-The phone number you entered is invalid
-Name: Bill
-Birthday on: 19-06-2004, days to birthday: 304
-Phones: 1234567890
---------------------
-Name: Joe
-Birthday on: 23-11-1984, days to birthday: 95
---------------------
-Name: Witney
-Birthday on: 21-01-1985, days to birthday: 154
-Phones: 0987654321
---------------------
-"""
