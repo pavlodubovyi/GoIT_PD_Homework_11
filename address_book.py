@@ -31,16 +31,14 @@ class Birthday(Field):
     def __init__(self, value) -> None:
         super().__init__(value)
 
-    @property
-    def value(self):
-        return self.something
-    
-    @value.setter
-    def value(self, new_value):
         try:
-            self.something = datetime.strptime(new_value, "%d-%m-%Y")
+            self._value = datetime.strptime(value, "%d-%m-%Y")
         except ValueError:
             raise ValueError("Wrong birthday format. Enter 'DD-MM-YYYY'")
+
+    @property
+    def value(self):
+        return self._value
 
 class Record:
     def __init__(self, name: Name, phone: Phone=None, birthday: Birthday=None) -> None:
@@ -67,15 +65,12 @@ class Record:
     
     def days_to_birthday(self):
         
-        current_date = datetime.now().date()
-        next_birthday = self.birthday.replace(year=current_date.year)
-        
+        current_date = datetime.now()
+        next_birthday = birthday.value.replace(year=current_date.year)
         if current_date.date() == next_birthday.date():
             return f"Today's {self.name.value}'s birthday!"
-        
         elif current_date.date() > next_birthday.date():
             next_birthday = next_birthday.replace(year=current_date.year + 1)
-        
         days_left = (next_birthday - current_date).days
         return days_left
 
@@ -116,11 +111,4 @@ if __name__ == '__main__':
     print('All Ok)')
 
 """
-Traceback (most recent call last):
-  File "/Users/macos/Documents/GitHub/GoIT_PD_Homework_11/address_book.py", line 113, in <module>
-    print(ab['Bill'].days_to_birthday())
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/macos/Documents/GitHub/GoIT_PD_Homework_11/address_book.py", line 71, in days_to_birthday
-    next_birthday = self.birthday.replace(year=current_date.year)
-                    ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'Birthday' object has no attribute 'replace'"""
+ """
