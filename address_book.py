@@ -27,23 +27,32 @@ class Name(Field):
     def __init__(self, value) -> None:
         super().__init__(value)
 
-
-class Birthday(Field):
-    def __init__(self, value) -> None:
-        super().__init__(value)
-
-        try:
-            self.some_value = datetime.strptime(value, "%d-%m-%Y")
-        except ValueError:
-            raise ValueError("Wrong birthday format. Enter 'DD-MM-YYYY'")
-
     @property
     def value(self):
-        return self.some_value
+        return self.some_other_value
     
     @value.setter
     def value(self, new_value):
-        self.some_value = new_value
+        self.some_other_value = new_value
+    """
+    В умові сказано: "setter та getter логіку для атрибутів value спадкоємців Field",
+    але я не знаю, навіщо тут в класі Name потрібні зараз сеттери та геттери. І без них все працює наче))
+    """
+
+
+class Birthday(Field):
+    @property
+    def value(self):
+        return self.some_value
+
+    @value.setter
+    def value(self, new_value):
+        try:
+            self.some_value = datetime.strptime(new_value, "%d-%m-%Y")
+        except ValueError:
+            raise ValueError("Wrong birthday format. Enter 'DD-MM-YYYY'")
+
+    # self.some_value = new_value
 
 
 class Record:
@@ -91,7 +100,10 @@ class AddressBook(UserDict):
     def __iter__(self) -> Iterator:
         return self.iterator
     
-    def iterator(self, piece_size=5):
+    # я не знаю, як написати цей ітератор. Я їх взагалі не розумію((((
+    def iterator(self, piece_size): # piece_size - це я намагався виконати критерій ДЗ "AddressBook реалізує метод iterator,
+        # який повертає генератор за записами AddressBook і за одну ітерацію повертає уявлення для N записів."
+        # Але який би piece_size я не вводив, результат не змінюється, у мене все одно виводяться мої 3 записи.
         entries = list(self.data.values())
         for i in range(0, len(entries), piece_size):
             yield entries[i:i + piece_size]
@@ -134,7 +146,7 @@ if __name__ == '__main__':
         assert isinstance(ab['Joe'].phones[0], Phone)
         assert ab['Joe'].phones[0].value is None
 
-    for record_piece in ab.iterator(piece_size=2):
+    for record_piece in ab.iterator(piece_size=1):
         for contact in record_piece:
             print(f"Name: {contact.name.value}")
             if contact.birthday:
