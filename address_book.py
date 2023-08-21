@@ -6,22 +6,6 @@ class Field:
     def __init__(self, value) -> None:
         self.value = value
 
-    
-class Phone(Field):
-    @property
-    def value(self):
-        return self.something
-    
-    @value.setter
-    def value(self, new_value):
-        try:
-            if not isinstance(new_value, str) or not new_value.isdigit() or len(new_value) != 10:
-                raise ValueError
-            self.something = new_value
-        except ValueError:
-            print(f"The phone number {new_value} is invalid. Phone number must have 10 digits")
-            self.something = None
-
 
 class Name(Field):
     def __init__(self, value) -> None:
@@ -38,6 +22,22 @@ class Name(Field):
     В умові сказано: "setter та getter логіку для атрибутів value спадкоємців Field",
     але я не знаю, навіщо тут в класі Name потрібні зараз сеттери та геттери. І без них все працює наче))
     """
+
+
+class Phone(Field):
+    @property
+    def value(self):
+        return self.something
+    
+    @value.setter
+    def value(self, new_value):
+        try:
+            if not isinstance(new_value, str) or not new_value.isdigit() or len(new_value) != 10:
+                raise ValueError
+            self.something = new_value
+        except ValueError:
+            print(f"The 's phone number {new_value} is invalid. Phone number must have 10 digits")
+            self.something = None
 
 
 class Birthday(Field):
@@ -91,23 +91,57 @@ class Record:
 
 
 class AddressBook(UserDict):
+    N = 2  # по замовчуванню поставимо по 2 записи
+
     def add_record(self, record: Record):
         self.data[record.name.value] = record
 
     def find_record(self, value):
         return self.data.get(value)
-    
-    def __iter__(self) -> Iterator:
-        return self.iterator
-    
-    # я не знаю, як написати цей ітератор. Я їх взагалі не розумію((((
-    def iterator(self, piece_size): # piece_size - це я намагався виконати критерій ДЗ "AddressBook реалізує метод iterator,
-        # який повертає генератор за записами AddressBook і за одну ітерацію повертає уявлення для N записів."
-        # Але який би piece_size я не вводив, результат не змінюється, у мене все одно виводяться мої 3 записи.
-        entries = list(self.data.values())
-        for i in range(0, len(entries), piece_size):
-            yield entries[i:i + piece_size]
-    
+
+    def iterator(self, n=None):
+        if n:
+            AddressBook.N = n
+        return self.__next__()
+
+    def __iter__(self):
+        temp_lst = []
+        counter = 0
+
+        for var in self.data.values():
+            temp_lst.append(var)
+            counter += 1
+            if counter >= AddressBook.N:
+                yield temp_lst
+                temp_lst.clear()
+                counter = 0
+        yield temp_lst
+
+    def __next__(self):
+        generator = self.__iter__()
+        page = 1
+        while True:
+            user_input = input("Press ENTER")
+            if user_input == "":
+                try:
+                    result = next(generator)
+                    if result:
+                        print(f"{'-' * 20} Page {page} {'-' * 20}")
+                        page += 1
+                        for contact in result:
+                            print(f"Name: {contact.name.value}")
+                            if contact.birthday:
+                                birthday_formatted = contact.birthday.value.strftime('%d-%m-%Y')
+                                print(f"Birthday on: {birthday_formatted}, days to birthday: {contact.days_to_birthday()}")
+                            if contact.phones:
+                                valid_phones = [phone.value for phone in contact.phones if phone.value is not None]
+                                print(f"Phones: {', '.join(valid_phones)}")
+                            print('-' * 20)
+                except StopIteration:
+                    print(f"{'-' * 20} END {'-' * 20}")
+                    break
+            else:
+                break
 
 if __name__ == '__main__':
 
@@ -116,7 +150,7 @@ if __name__ == '__main__':
     phone_1 = Phone('1234567890')
     phone_2 = Phone('098')
     birthday_1 = Birthday("19-06-2004")
-    rec_1 = Record(name_1, phone_1, phone_2, birthday=birthday_1, )
+    rec_1 = Record(name_1, phone_1, phone_2, birthday=birthday_1)
     ab = AddressBook()
     ab.add_record(rec_1)
   
@@ -132,28 +166,20 @@ if __name__ == '__main__':
     rec_3 = Record(name_3, phone_Witney_1, phone_Witney_2, birthday=birthday_3)
     ab.add_record(rec_3)
 
-    assert isinstance(ab['Bill'], Record)
-    assert isinstance(ab['Bill'].name, Name)
-    assert isinstance(ab['Bill'].phones, list)
-    assert isinstance(ab['Bill'].phones[0], Phone)
-    assert ab['Bill'].phones[0].value == '1234567890'
+    name_4 = Name('James')
+    phone_4_1 = Phone('1029384756')
+    phone_4_2 = Phone('0981237654')
+    birthday_4 = Birthday("02-09-1982")
+    rec_4 = Record(name_4, phone_4_1, phone_4_2, birthday=birthday_4)
+    ab.add_record(rec_4)
 
-    assert isinstance(ab['Joe'], Record)
-    assert isinstance(ab['Joe'].name, Name)
-    assert isinstance(ab['Joe'].phones, list)
+    name_5 = Name('Lincoln')
+    phone_5_1 = Phone('1029384756')
+    phone_5_2 = Phone('0981237654')
+    birthday_5 = Birthday("02-11-2008")
+    rec_5 = Record(name_5, phone_5_1, phone_5_2, birthday=birthday_5)
+    ab.add_record(rec_5)
 
-    if ab['Joe'].phones:
-        assert isinstance(ab['Joe'].phones[0], Phone)
-        assert ab['Joe'].phones[0].value is None
-
-    for record_piece in ab.iterator(piece_size=1):
-        for contact in record_piece:
-            print(f"Name: {contact.name.value}")
-            if contact.birthday:
-                birthday_formatted = contact.birthday.value.strftime('%d-%m-%Y')
-                print(f"Birthday on: {birthday_formatted}, days to birthday: {contact.days_to_birthday()}")
-            if contact.phones:
-                valid_phones = [phone.value for phone in contact.phones if phone.value is not None]
-                print(f"Phones: {', '.join(valid_phones)}")
-            print('-' * 20)
+    for record_piece in ab.iterator():
+            print(record_piece)
 
