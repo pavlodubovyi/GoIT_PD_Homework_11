@@ -112,19 +112,20 @@ class AddressBook(UserDict):
             temp_lst.append(var)
             counter += 1
             if counter >= AddressBook.N:
-                yield temp_lst
+                yield temp_lst, False
                 temp_lst.clear()
                 counter = 0
-        yield temp_lst
+        yield temp_lst, True
 
     def __next__(self):
         generator = self.__iter__()
         page = 1
-        while True:
+        end_flag = False
+        while not end_flag:
             user_input = input("Press ENTER")
             if user_input == "":
                 try:
-                    result = next(generator)
+                    result, end_flag = next(generator)
                     if result:
                         print(f"{'-' * 20} Page {page} {'-' * 20}")
                         page += 1
@@ -180,6 +181,6 @@ if __name__ == '__main__':
     rec_5 = Record(name_5, phone_5_1, phone_5_2, birthday=birthday_5)
     ab.add_record(rec_5)
 
-    for record_piece in ab.iterator():
-            print(record_piece)
+    print(ab.iterator())
+
 
